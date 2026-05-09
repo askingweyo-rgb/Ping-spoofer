@@ -1,0 +1,48 @@
+-- Roblox Ping Spoofer (2ms) with "Z" Key Toggle
+-- Designed for Delta, Hydrogen, and other executors
+
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Configuration
+local toggleKey = Enum.KeyCode.Z
+local fakePingValue = "2 ms"
+
+-- Function to find and lock the Ping Label
+local function lockPing()
+    local RobloxGui = CoreGui:WaitForChild("RobloxGui")
+    local PerfStats = RobloxGui:WaitForChild("PerformanceStats")
+    
+    for _, child in next, PerfStats:GetChildren() do
+        -- Navigate to the specific value label for 'Ping'
+        if child:FindFirstChild("StatsMiniTextPanelClass") and child.StatsMiniTextPanelClass.TitleLabel.Text == "Ping" then
+            local valueLabel = child.StatsMiniTextPanelClass.ValueLabel
+            
+            -- Keep it at 2ms even if Roblox tries to update it
+            valueLabel:GetPropertyChangedSignal("Text"):Connect(function()
+                if valueLabel.Text ~= fakePingValue then
+                    valueLabel.Text = fakePingValue
+                end
+            end)
+            
+            valueLabel.Text = fakePingValue
+        end
+    end
+end
+
+-- Function to toggle the Performance Stats GUI
+local function toggleGui()
+    local isVisible = GuiService:GetGuiSetting("PerformanceStatsVisible")
+    GuiService:SetGuiSetting("PerformanceStatsVisible", not isVisible)
+end
+
+-- Keybind listener
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == toggleKey then
+        toggleGui()
+    end
+end)
+
+-- Start the script
+lockPing()
